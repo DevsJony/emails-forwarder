@@ -53,9 +53,9 @@ export class EmailListener extends (EventEmitter as new () => TypedEmitter<Event
             lock.release();
         });
 
-        this.client.on("close", (...args: any[]) => {
-            console.log(`${imapOptions.auth.user}: close`);
-            console.log(args);
+        this.client.on("close", async () => {
+            // Reconnect
+            await this.connect();
         });
 
         this.client.on("error", (...args: any[]) => {
@@ -74,10 +74,6 @@ export class EmailListener extends (EventEmitter as new () => TypedEmitter<Event
     }
 
     public async connect() {
-        console.log("Connecting to IMAP...");
-
         await this.client.connect();
-
-        console.log("Connected to IMAP!")
     }
 }

@@ -17,18 +17,29 @@ type Events = {
 }
 
 export class EmailListener extends (EventEmitter as new () => TypedEmitter<Events>) {
-    private client: ImapFlow;
+    private client: ImapFlow | undefined;
 
-    constructor(imapOptions: ImapFlowOptions) {
+    constructor(private imapOptions: ImapFlowOptions) {
         super();
+    }
 
+    private fromExistsDataToNewMails(data: ExistsData): number[] {
+        let newMails: number[] = [];
+        for (let mailId = data.prevCount + 1; mailId <= data.count; mailId++) {
+            newMails.push(mailId);
+        }
+
+        return newMails;
+    }
+
+    public async connect() {
         // Setup silent logger
         let logger = pino();
         logger.level = "silent";
 
         this.client = new ImapFlow({
             logger: logger,
-            ...imapOptions
+            ...this.imapOptions
         });
 
         // IMAP server sends packet "EXISTS" to inform client about emails count change
@@ -40,10 +51,10 @@ export class EmailListener extends (EventEmitter as new () => TypedEmitter<Event
 
             if (newMails.length === 0) return;
 
-            let lock = await this.client.getMailboxLock("INBOX", {readonly: true});
+            let lock = await this.client!.getMailboxLock("INBOX", {readonly: true});
 
             for (let mailId of newMails) {
-                let {meta, content} = await this.client.download(mailId.toString());
+                let {meta, content} = await this.client!.download(mailId.toString());
 
                 let parsedMail = await simpleParser(content);
 
@@ -61,21 +72,10 @@ export class EmailListener extends (EventEmitter as new () => TypedEmitter<Event
         });
 
         this.client.on("error", (...args: any[]) => {
-            console.log(`${imapOptions.auth.user}: error`);
+            console.log(`${this.imapOptions.auth.user}: error`);
             console.log(args);
         });
-    }
 
-    private fromExistsDataToNewMails(data: ExistsData): number[] {
-        let newMails: number[] = [];
-        for (let mailId = data.prevCount + 1; mailId <= data.count; mailId++) {
-            newMails.push(mailId);
-        }
-
-        return newMails;
-    }
-
-    public async connect() {
         await this.client.connect();
     }
 }

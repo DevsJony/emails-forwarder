@@ -30,6 +30,16 @@ export class EmailListener extends (EventEmitter as new () => TypedEmitter<Event
             logger: logger,
             ...imapOptions
         });
+
+        this.client.on("close", (...args: any[]) => {
+            console.log(`${imapOptions.auth.user}: close`);
+            console.log(args);
+        });
+
+        this.client.on("error", (...args: any[]) => {
+            console.log(`${imapOptions.auth.user}: error`);
+            console.log(args);
+        });
     }
 
     private fromExistsDataToNewMails(data: ExistsData): number[] {

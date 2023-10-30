@@ -36,7 +36,7 @@ for (let instance of envConfig.instances) {
                 name: "Liczba załączników",
                 value: mail.attachments.length.toString()
             })
-            .setColor(0xd9ff00);
+            .setColor(0xf8e337);
 
         await webhookClient.send({ embeds: [embed] });
     });

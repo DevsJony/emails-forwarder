@@ -54,8 +54,10 @@ export class EmailListener extends (EventEmitter as new () => TypedEmitter<Event
         });
 
         this.client.on("close", async () => {
+            console.log("reconnecting...");
             // Reconnect
             await this.connect();
+            console.log("reconnected");
         });
 
         this.client.on("error", (...args: any[]) => {

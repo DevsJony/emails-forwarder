@@ -33,7 +33,7 @@ async function run() {
             let embed = new EmbedBuilder()
                 .setTitle(mail.subject!)
                 .setAuthor({name: mail.from!.text, iconURL: avatarUrl})
-                .setDescription(mail.html ? NodeHtmlMarkdown.translate(mail.html) : mail.text!)
+                .setDescription(mail.text!)
                 .setFields({
                     name: "Liczba załączników",
                     value: mail.attachments.length.toString()

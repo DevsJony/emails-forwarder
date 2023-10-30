@@ -49,6 +49,7 @@ export class EmailListener extends (EventEmitter as new () => TypedEmitter<Event
 
         console.log("Connected to IMAP!")
 
+        // IMAP server sends packet "EXISTS" to inform client about emails count change
         this.client.on("exists", async (data: ExistsData) => {
             //console.log(`Message count in "${data.path}" is ${data.count}. Prev: ${data.prevCount}`);
             //console.log("data", data);

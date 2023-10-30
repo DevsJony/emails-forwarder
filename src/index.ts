@@ -52,7 +52,7 @@ async function run() {
                     .setFields([
                         {
                             name: "Message ID",
-                            value: mail.messageId+""
+                            value: "`"+mail.messageId+"`"
                         },
                         {
                             name: "UID",

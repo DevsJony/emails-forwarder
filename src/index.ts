@@ -25,7 +25,7 @@ for (let instance of envConfig.instances) {
         // Avatar URL (Gravatar)
         let lowerCaseMail = mail.from!.value[0]!.address!.trim().toLowerCase();
         let emailHash = crypto.createHash("sha256").update(lowerCaseMail).digest("hex");
-        let avatarUrl = `https://gravatar.com/avatar/${emailHash}?d=404`;
+        let avatarUrl = `https://gravatar.com/avatar/${emailHash}?d=mp`;
 
         // Prepare embed
         let embed = new EmbedBuilder()

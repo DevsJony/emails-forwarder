@@ -31,6 +31,28 @@ export class EmailListener extends (EventEmitter as new () => TypedEmitter<Event
             ...imapOptions
         });
 
+        // IMAP server sends packet "EXISTS" to inform client about emails count change
+        this.client.on("exists", async (data: ExistsData) => {
+            //console.log(`Message count in "${data.path}" is ${data.count}. Prev: ${data.prevCount}`);
+            //console.log("data", data);
+
+            let newMails = this.fromExistsDataToNewMails(data);
+
+            if (newMails.length === 0) return;
+
+            let lock = await this.client.getMailboxLock("INBOX", {readonly: true});
+
+            for (let mailId of newMails) {
+                let {meta, content} = await this.client.download(mailId.toString());
+
+                let parsedMail = await simpleParser(content);
+
+                this.emit("onMailReceive", parsedMail, mailId);
+            }
+
+            lock.release();
+        });
+
         this.client.on("close", (...args: any[]) => {
             console.log(`${imapOptions.auth.user}: close`);
             console.log(args);
@@ -53,26 +75,9 @@ export class EmailListener extends (EventEmitter as new () => TypedEmitter<Event
 
     public async connect() {
         console.log("Connecting to IMAP...");
+
         await this.client.connect();
 
-        await this.client.getMailboxLock("INBOX");
-
         console.log("Connected to IMAP!")
-
-        // IMAP server sends packet "EXISTS" to inform client about emails count change
-        this.client.on("exists", async (data: ExistsData) => {
-            //console.log(`Message count in "${data.path}" is ${data.count}. Prev: ${data.prevCount}`);
-            //console.log("data", data);
-
-            let newMails = this.fromExistsDataToNewMails(data);
-
-            for (let mailId of newMails) {
-                let {meta, content} = await this.client.download(mailId.toString());
-
-                let parsedMail = await simpleParser(content);
-
-                this.emit("onMailReceive", parsedMail, mailId);
-            }
-        });
     }
 }

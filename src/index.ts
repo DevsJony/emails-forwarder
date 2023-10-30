@@ -3,7 +3,6 @@ import {ImapFlowOptions} from "imapflow";
 import fs from "fs";
 import {EmbedBuilder, WebhookClient} from "discord.js";
 import * as crypto from "crypto";
-import {NodeHtmlMarkdown} from "node-html-markdown";
 
 interface EnvConfig {
     instances: Array<{

@@ -48,6 +48,7 @@ async function run() {
                 let embed = new EmbedBuilder()
                     .setTitle("Błąd")
                     .setDescription(`Wystąpił błąd z podaniem dalej wiadomości! Jeśli chcesz odczytać jej zawartość to musisz udać się do panelu poczty.`)
+                    .setColor(0xff0000)
                     .setFields([
                         {
                             name: "Message ID",

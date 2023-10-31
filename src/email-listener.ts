@@ -34,13 +34,10 @@ export class EmailListener extends (EventEmitter as new () => TypedEmitter<Event
 
     public async connect() {
         // Setup silent logger
-        let logger = pino();
-        logger.level = "silent";
+        //let logger = pino();
+        //logger.level = "silent";
 
-        this.client = new ImapFlow({
-            logger: logger,
-            ...this.imapOptions
-        });
+        this.client = new ImapFlow(this.imapOptions);
 
         // IMAP server sends packet "EXISTS" to inform client about emails count change
         this.client.on("exists", async (data: ExistsData) => {

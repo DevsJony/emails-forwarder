@@ -39,8 +39,6 @@ export class EmailListener extends (EventEmitter as new () => TypedEmitter<Event
 
         this.client = new ImapFlow(this.imapOptions);
 
-        let lock = await this.client.getMailboxLock("INBOX", {readonly: true});
-
         // IMAP server sends packet "EXISTS" to inform client about emails count change
         this.client.on("exists", async (data: ExistsData) => {
             //console.log(`Message count in "${data.path}" is ${data.count}. Prev: ${data.prevCount}`);
@@ -72,5 +70,7 @@ export class EmailListener extends (EventEmitter as new () => TypedEmitter<Event
         });
 
         await this.client.connect();
+
+        await this.client.mailboxOpen("INBOX", {readOnly: true});
     }
 }

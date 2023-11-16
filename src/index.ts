@@ -44,17 +44,17 @@ async function run() {
                     for (let attachment of mail.attachments) {
                         // Is not first
                         if (prettyAttachmentsFileNames !== "") {
-                            prettyAttachmentsFileNames += ", "
+                            prettyAttachmentsFileNames += ", ";
                         }
 
-                        prettyAttachmentsFileNames += `\`${attachment.filename}\``
+                        prettyAttachmentsFileNames += `\`${attachment.filename}\``;
                     }
 
                     // Add field
                     embed.addFields({
                         name: "Zawiera załączniki",
                         value: prettyAttachmentsFileNames
-                    })
+                    });
                 }
 
                 await webhookClient.send({embeds: [embed]});

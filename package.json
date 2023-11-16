@@ -17,12 +17,12 @@
     "@types/imapflow": "^1.0.15",
     "@types/mailparser": "^3.4.3",
     "ts-node": "^10.9.1",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "typed-emitter": "^2.1.0"
   },
   "dependencies": {
     "discord.js": "^14.13.0",
     "imapflow": "^1.0.147",
-    "mailparser": "^3.6.5",
-    "typed-emitter": "^2.1.0"
+    "mailparser": "^3.6.5"
   }
 }

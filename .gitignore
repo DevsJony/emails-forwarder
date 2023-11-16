@@ -133,3 +133,5 @@ dist
 .idea
 
 env-config.json
+
+src/test.ts

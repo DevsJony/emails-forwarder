@@ -1,6 +1,6 @@
 import {ImapFlow, ImapFlowOptions} from "imapflow";
 import {ParsedMail, simpleParser} from "mailparser";
-import {pino} from "pino";
+//import {pino} from "pino";
 import EventEmitter from "events";
 import TypedEventEmitter, { EventMap } from "typed-emitter";
 

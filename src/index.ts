@@ -15,7 +15,8 @@ async function run() {
     const envConfig = JSON.parse(fs.readFileSync("env-config.json", "utf-8")) as EnvConfig;
 
     for (let instance of envConfig.instances) {
-        console.log(`${instance.mailAccount.auth.user}: Preparing instance...`)
+        console.log(`${instance.mailAccount.auth.user}: Preparing instance...`);
+
         const emailListener = new EmailListener(instance.mailAccount);
         const webhookClient = new WebhookClient({url: instance.webhookUrl})
 
@@ -34,11 +35,27 @@ async function run() {
                     .setTitle(mail.subject!)
                     .setAuthor({name: mail.from!.text, iconURL: avatarUrl})
                     .setDescription(mail.text!)
-                    .setFields({
-                        name: "Liczba załączników",
-                        value: mail.attachments.length.toString()
-                    })
                     .setColor(0xf8e337);
+
+                // Attachments
+                if (mail.attachments.length > 0) {
+                    let prettyAttachmentsFileNames = ""; // Example: "`test1.png`, `test2.png`, `test3.txt`"
+
+                    for (let attachment of mail.attachments) {
+                        // Is not first
+                        if (prettyAttachmentsFileNames !== "") {
+                            prettyAttachmentsFileNames += ", "
+                        }
+
+                        prettyAttachmentsFileNames += `\`${attachment.filename}\``
+                    }
+
+                    // Add field
+                    embed.addFields({
+                        name: "Zawiera załączniki",
+                        value: prettyAttachmentsFileNames
+                    })
+                }
 
                 await webhookClient.send({embeds: [embed]});
             } catch (err) {

@@ -11,6 +11,13 @@ interface EnvConfig {
     }>
 }
 
+function truncateString(str: string, maxLength: number) {
+    if (str.length <= maxLength) {
+        return str;
+    }
+    return str.slice(0, maxLength  - 3) + "...";
+}
+
 async function run() {
     const envConfig = JSON.parse(fs.readFileSync("env-config.json", "utf-8")) as EnvConfig;
 
@@ -34,7 +41,7 @@ async function run() {
                 let embed = new EmbedBuilder()
                     .setTitle(mail.subject!)
                     .setAuthor({name: mail.from!.text, iconURL: avatarUrl})
-                    .setDescription(mail.text!)
+                    .setDescription(truncateString(mail.text!, 4096))
                     .setColor(0xf8e337);
 
                 // Attachments

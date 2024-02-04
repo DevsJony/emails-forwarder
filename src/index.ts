@@ -31,6 +31,7 @@ async function run() {
             webhookClients.push(new WebhookClient({url: url}));
         }
 
+
         emailListener.on("onMailReceive", async (mail, mailId) => {
             try {
                 console.log(`${instance.mailAccount.auth.user}: Processing ${mailId}`);

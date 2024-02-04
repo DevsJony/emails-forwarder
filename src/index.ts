@@ -7,7 +7,7 @@ import * as crypto from "crypto";
 interface EnvConfig {
     instances: Array<{
         mailAccount: ImapFlowOptions,
-        webhookUrl: string
+        webhookUrls: string[]
     }>
 }
 
@@ -25,7 +25,11 @@ async function run() {
         console.log(`${instance.mailAccount.auth.user}: Preparing instance...`);
 
         const emailListener = new EmailListener(instance.mailAccount);
-        const webhookClient = new WebhookClient({url: instance.webhookUrl})
+        //const webhookClient = new WebhookClient({url: instance.webhookUrls})
+        const webhookClients: WebhookClient[] = [];
+        for (let url of instance.webhookUrls) {
+            webhookClients.push(new WebhookClient({url: url}));
+        }
 
         emailListener.on("onMailReceive", async (mail, mailId) => {
             try {
@@ -64,7 +68,9 @@ async function run() {
                     });
                 }
 
-                await webhookClient.send({embeds: [embed]});
+                for (let webhookClient of webhookClients) {
+                    await webhookClient.send({embeds: [embed]});
+                }
             } catch (err) {
                 console.error("Error while forwarding mail!");
                 console.error(err);
@@ -84,7 +90,9 @@ async function run() {
                         }
                     ]);
 
-                await webhookClient.send({embeds: [embed]});
+                for (let webhookClient of webhookClients) {
+                    await webhookClient.send({embeds: [embed]});
+                }
             }
         });
 

@@ -46,7 +46,7 @@ async function run() {
                 let embed = new EmbedBuilder()
                     .setTitle(mail.subject!)
                     .setAuthor({name: mail.from!.text, iconURL: avatarUrl})
-                    .setDescription(truncateString(mail.text!, 4096))
+                    .setDescription(truncateString(mail.text ?? ":warning: Brak treści lub błąd konwertowania HTML na tekst :warning:", 4096))
                     .setColor(0xf8e337);
 
                 // Attachments

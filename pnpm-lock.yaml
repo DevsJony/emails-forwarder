@@ -29,8 +29,8 @@ devDependencies:
     specifier: ^2.1.0
     version: 2.1.0
   typescript:
-    specifier: ^5.2.2
-    version: 5.2.2
+    specifier: ^5.4.3
+    version: 5.4.3
 
 packages:
 
@@ -851,8 +851,8 @@ packages:
       rxjs: 7.8.1
     dev: true
 
-  /typescript@5.2.2:
-    resolution: {integrity: sha512-mI4WrpHsbCIcwT9cF4FZvr80QUeKvsUsUvKDoR+X/7XHQH98xYD8YHZg7ANtz2GtZt/CBq2QJ0thkGJMHfqc1w==}
+  /typescript@5.4.3:
+    resolution: {integrity: sha512-KrPd3PKaCLr78MalgiwJnA25Nm8HAmdwN3mYUYZgG/wizIo9EainNVQI9/yDavtVFRN2h3k8uf3GLHuhDMgEHg==}
     engines: {node: '>=14.17'}
     hasBin: true
     dev: true

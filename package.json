@@ -18,7 +18,7 @@
     "@types/mailparser": "^3.4.3",
     "tsx": "^4.7.1",
     "typed-emitter": "^2.1.0",
-    "typescript": "^5.4.3"
+    "typescript": "^5.4.5"
   },
   "dependencies": {
     "discord.js": "^14.13.0",

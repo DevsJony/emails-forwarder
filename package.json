@@ -23,6 +23,6 @@
   "dependencies": {
     "discord.js": "^14.13.0",
     "imapflow": "^1.0.158",
-    "mailparser": "^3.6.9"
+    "mailparser": "^3.7.1"
   }
 }

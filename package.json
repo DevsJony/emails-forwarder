@@ -21,7 +21,7 @@
     "typescript": "^5.4.3"
   },
   "dependencies": {
-    "discord.js": "^14.13.0",
+    "discord.js": "^14.15.2",
     "imapflow": "^1.0.158",
     "mailparser": "^3.6.9"
   }

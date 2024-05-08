@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "discord.js": "^14.13.0",
-    "imapflow": "^1.0.158",
+    "imapflow": "^1.0.162",
     "mailparser": "^3.6.9"
   }
 }

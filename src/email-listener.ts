@@ -61,10 +61,10 @@ export class EmailListener extends (EventEmitter as new () => TypedEmitter<Event
         });
 
         this.client.on("close", async () => {
-            console.log("reconnecting...");
+            console.log(`${this.imapOptions.auth.user}: Reconnecting...`);
             // Reconnect
             await this.connect();
-            console.log("reconnected");
+            console.log(`${this.imapOptions.auth.user}: Reconnected`);
         });
 
         this.client.on("error", (...args: any[]) => {

@@ -116,9 +116,9 @@ async function run() {
             }
         });
 
-        console.log("Connecting to IMAP...");
+        // console.log("Connecting to IMAP...");
         await emailListener.connect();
-        console.log("Connected to IMAP!")
+        // console.log("Connected to IMAP!")
 
         console.log(`${instance.mailAccount.auth.user}: Instance is running!`);
     }

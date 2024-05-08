@@ -2,6 +2,7 @@ import {ImapFlow, ImapFlowOptions} from "imapflow";
 import {ParsedMail, simpleParser} from "mailparser";
 import EventEmitter from "events";
 import TypedEventEmitter, { EventMap } from "typed-emitter";
+import {pino} from "pino";
 
 type TypedEmitter<T extends EventMap> = TypedEventEmitter.default<T>;
 
@@ -32,7 +33,14 @@ export class EmailListener extends (EventEmitter as new () => TypedEmitter<Event
     }
 
     public async connect() {
-        this.client = new ImapFlow(this.imapOptions);
+        // Setup silent logger
+        let logger = pino();
+        logger.level = "silent";
+
+        this.client = new ImapFlow({
+            logger: logger,
+            ...this.imapOptions
+        });
 
         // IMAP server sends packet "EXISTS" to inform client about emails count change
         this.client.on("exists", async (data: ExistsData) => {

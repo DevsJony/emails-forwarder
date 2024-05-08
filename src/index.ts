@@ -7,8 +7,18 @@ import * as crypto from "crypto";
 interface EnvConfig {
     instances: Array<{
         mailAccount: ImapFlowOptions,
-        webhookUrls: string[]
+        webhooks: WebhookOptions[]
     }>
+}
+
+interface WebhookOptions {
+    url: string
+    threadId?: string
+}
+
+interface WebhookInstance {
+    client: WebhookClient,
+    options: WebhookOptions
 }
 
 function truncateString(str: string, maxLength: number) {
@@ -25,10 +35,13 @@ async function run() {
         console.log(`${instance.mailAccount.auth.user}: Preparing instance...`);
 
         const emailListener = new EmailListener(instance.mailAccount);
-        //const webhookClient = new WebhookClient({url: instance.webhookUrls})
-        const webhookClients: WebhookClient[] = [];
-        for (let url of instance.webhookUrls) {
-            webhookClients.push(new WebhookClient({url: url}));
+
+        const webhookInstances: WebhookInstance[] = [];
+        for (let webhookOptions of instance.webhooks) {
+            webhookInstances.push({
+                client: new WebhookClient({url: webhookOptions.url}),
+                options: webhookOptions
+            });
         }
 
 
@@ -69,8 +82,11 @@ async function run() {
                     });
                 }
 
-                for (let webhookClient of webhookClients) {
-                    await webhookClient.send({embeds: [embed]});
+                for (let webhookInstance of webhookInstances) {
+                    await webhookInstance.client.send({
+                        embeds: [embed],
+                        threadId: webhookInstance.options.threadId
+                    });
                 }
             } catch (err) {
                 console.error("Error while forwarding mail!");
@@ -91,8 +107,11 @@ async function run() {
                         }
                     ]);
 
-                for (let webhookClient of webhookClients) {
-                    await webhookClient.send({embeds: [embed]});
+                for (let webhookInstance of webhookInstances) {
+                    await webhookInstance.client.send({
+                        embeds: [embed],
+                        threadId: webhookInstance.options.threadId
+                    });
                 }
             }
         });

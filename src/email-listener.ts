@@ -42,7 +42,7 @@ export class EmailListener extends (EventEmitter as new () => TypedEmitter<Event
         logger.level = "silent";
 
         this.client = new ImapFlow({
-            //logger: logger,
+            logger: logger,
             ...this.imapOptions
         });
 

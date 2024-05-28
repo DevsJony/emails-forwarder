@@ -16,8 +16,12 @@ type Events = {
     onMailReceive: (mail: ParsedMail, mailId: number) => void
 }
 
+const RECONNECT_DELAY_ADD = 1000 * 10; // 5 seconds
+const RECONNECT_MAX_DELAY = 1000 * 60 * 5; // 5 minutes
+
 export class EmailListener extends (EventEmitter as new () => TypedEmitter<Events>) {
     private client: ImapFlow | undefined;
+    private reconnectDelay = 0;
 
     constructor(private imapOptions: ImapFlowOptions) {
         super();
@@ -32,13 +36,13 @@ export class EmailListener extends (EventEmitter as new () => TypedEmitter<Event
         return newMails;
     }
 
-    public async connect() {
+    private prepareClient() {
         // Setup silent logger
         let logger = pino();
         logger.level = "silent";
 
         this.client = new ImapFlow({
-            logger: logger,
+            //logger: logger,
             ...this.imapOptions
         });
 
@@ -61,19 +65,47 @@ export class EmailListener extends (EventEmitter as new () => TypedEmitter<Event
         });
 
         this.client.on("close", async () => {
-            console.log(`${this.imapOptions.auth.user}: Reconnecting...`);
-            // Reconnect
-            await this.connect();
-            console.log(`${this.imapOptions.auth.user}: Reconnected`);
+            await this.reconnect();
         });
 
-        this.client.on("error", (...args: any[]) => {
+        this.client.on("error", async (...args: any[]) => {
             console.log(`${this.imapOptions.auth.user}: error`);
             console.log(args);
+
+            await this.reconnect();
         });
+    }
 
-        await this.client.connect();
+    public async connect() {
+        this.prepareClient();
 
-        await this.client.mailboxOpen("INBOX", {readOnly: true});
+        try {
+            await this.client!.connect();
+
+            await this.client!.mailboxOpen("INBOX", {readOnly: true});
+        } catch (err) {
+            console.error(`${this.imapOptions.auth.user}: Error while connecting to IMAP!`);
+            console.error(err);
+
+            await this.reconnect();
+        }
+    }
+
+    private async reconnect() {
+        if (this.reconnectDelay > 0) {
+            console.log(`${this.imapOptions.auth.user}: Reconnect delay: ${this.reconnectDelay}`);
+            await new Promise(resolve => setTimeout(resolve, this.reconnectDelay));
+        }
+
+        if (this.reconnectDelay < RECONNECT_MAX_DELAY) {
+            this.reconnectDelay += RECONNECT_DELAY_ADD;
+        }
+
+        console.log(`${this.imapOptions.auth.user}: Reconnecting...`);
+        // Reconnect
+        await this.connect();
+        console.log(`${this.imapOptions.auth.user}: Reconnected`);
+
+        this.reconnectDelay = 0;
     }
 }

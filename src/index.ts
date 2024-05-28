@@ -44,7 +44,6 @@ async function run() {
             });
         }
 
-
         emailListener.on("onMailReceive", async (mail, mailId) => {
             try {
                 console.log(`${instance.mailAccount.auth.user}: Processing ${mailId}`);

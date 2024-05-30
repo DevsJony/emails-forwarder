@@ -65,6 +65,7 @@ export class EmailListener extends (EventEmitter as new () => TypedEmitter<Event
         });
 
         this.client.on("close", async () => {
+            console.log("connection closed")
             await this.reconnect();
         });
 
@@ -92,6 +93,13 @@ export class EmailListener extends (EventEmitter as new () => TypedEmitter<Event
     }
 
     private async reconnect() {
+        // Check if connection is still alive
+        if (this.client!.usable) {
+            // Close connection and then reconnect. In event listener it will automatically reconnect
+            this.client!.close();
+            return;
+        }
+
         if (this.reconnectDelay > 0) {
             console.log(`${this.imapOptions.auth.user}: Reconnect delay: ${this.reconnectDelay}`);
             await new Promise(resolve => setTimeout(resolve, this.reconnectDelay));

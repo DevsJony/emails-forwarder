@@ -22,7 +22,7 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
-    "discord.js": "^14.15.2",
+    "discord.js": "^14.15.3",
     "imapflow": "^1.0.162",
     "mailparser": "^3.7.1",
     "pino": "^9.0.0"

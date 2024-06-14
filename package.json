@@ -17,7 +17,7 @@
   "devDependencies": {
     "@types/imapflow": "^1.0.18",
     "@types/mailparser": "^3.4.4",
-    "tsx": "^4.9.3",
+    "tsx": "^4.15.4",
     "typed-emitter": "^2.1.0",
     "typescript": "^5.4.5"
   },

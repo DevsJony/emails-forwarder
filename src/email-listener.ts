@@ -72,8 +72,6 @@ export class EmailListener extends (EventEmitter as new () => TypedEmitter<Event
         this.client.on("error", async (...args: any[]) => {
             console.log(`${this.imapOptions.auth.user}: error`);
             console.log(args);
-
-            await this.reconnect();
         });
     }
 

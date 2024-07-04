@@ -16,12 +16,13 @@ type Events = {
     onMailReceive: (mail: ParsedMail, mailId: number) => void
 }
 
-const RECONNECT_DELAY_ADD = 1000 * 10; // 5 seconds
+const RECONNECT_DELAY_ADD = 1000 * 10; // 10 seconds
 const RECONNECT_MAX_DELAY = 1000 * 60 * 5; // 5 minutes
 
 export class EmailListener extends (EventEmitter as new () => TypedEmitter<Events>) {
     private client: ImapFlow | undefined;
     private reconnectDelay = 0;
+    private reconnecting = false;
 
     constructor(private imapOptions: ImapFlowOptions) {
         super();
@@ -82,21 +83,34 @@ export class EmailListener extends (EventEmitter as new () => TypedEmitter<Event
             await this.client!.connect();
 
             await this.client!.mailboxOpen("INBOX", {readOnly: true});
+
+            if (this.reconnecting) {
+                this.onReconnected();
+            }
         } catch (err) {
             console.error(`${this.imapOptions.auth.user}: Error while connecting to IMAP!`);
             console.error(err);
 
+            this.reconnecting = false;
             await this.reconnect();
         }
     }
 
     private async reconnect() {
+        if (this.reconnecting) {
+            // Discard reconnecting twice
+            return;
+        }
+
         // Check if connection is still alive
         if (this.client!.usable) {
             // Close connection and then reconnect. In event listener it will automatically reconnect
             this.client!.close();
             return;
         }
+
+        // We are now reconnecting
+        this.reconnecting = true;
 
         if (this.reconnectDelay > 0) {
             console.log(`${this.imapOptions.auth.user}: Reconnect delay: ${this.reconnectDelay}`);
@@ -110,8 +124,13 @@ export class EmailListener extends (EventEmitter as new () => TypedEmitter<Event
         console.log(`${this.imapOptions.auth.user}: Reconnecting...`);
         // Reconnect
         await this.connect();
+    }
+
+    private onReconnected() {
         console.log(`${this.imapOptions.auth.user}: Reconnected`);
 
+        // Reset some variables
         this.reconnectDelay = 0;
+        this.reconnecting = false;
     }
 }

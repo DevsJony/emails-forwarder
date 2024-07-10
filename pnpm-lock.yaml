@@ -20,6 +20,9 @@ importers:
       pino:
         specifier: ^9.0.0
         version: 9.0.0
+      turndown:
+        specifier: ^7.2.0
+        version: 7.2.0
     devDependencies:
       '@types/imapflow':
         specifier: ^1.0.18
@@ -27,6 +30,9 @@ importers:
       '@types/mailparser':
         specifier: ^3.4.4
         version: 3.4.4
+      '@types/turndown':
+        specifier: ^5.0.4
+        version: 5.0.4
       tsx:
         specifier: ^4.9.3
         version: 4.9.3
@@ -205,6 +211,9 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@mixmark-io/domino@2.2.0':
+    resolution: {integrity: sha512-Y28PR25bHXUg88kCV7nivXrP2Nj2RueZ3/l/jdx6J9f8J4nsEGcgX0Qe6lt7Pa+J79+kPiJU3LguR6O/6zrLOw==}
+
   '@sapphire/async-queue@1.5.2':
     resolution: {integrity: sha512-7X7FFAA4DngXUl95+hYbUF19bp1LGiffjJtu7ygrZrbdCSsdDDBaSjB7Akw0ZbOu6k0xpXyljnJ6/RZUvLfRdg==}
     engines: {node: '>=v14.0.0', npm: '>=7.0.0'}
@@ -228,6 +237,9 @@ packages:
 
   '@types/node@20.12.11':
     resolution: {integrity: sha512-vDg9PZ/zi+Nqp6boSOT7plNuthRugEKixDv5sFTIpkE89MmNtEArAShI4mxuX2+UrLEe9pxC1vm2cjm9YlWbJw==}
+
+  '@types/turndown@5.0.4':
+    resolution: {integrity: sha512-28GI33lCCkU4SGH1GvjDhFgOVr+Tym4PXGBIU1buJUa6xQolniPArtUT+kv42RR2N9MsMLInkr904Aq+ESHBJg==}
 
   '@types/ws@8.5.10':
     resolution: {integrity: sha512-vmQSUcfalpIq0R9q7uTo2lXs6eGIpt9wtnLdMv9LVpIjCA/+ufZRozlVoVelIYixx1ugCBKDhn89vnsEGOCx9A==}
@@ -485,6 +497,9 @@ packages:
     engines: {node: '>=18.0.0'}
     hasBin: true
 
+  turndown@7.2.0:
+    resolution: {integrity: sha512-eCZGBN4nNNqM9Owkv9HAtWRYfLA4h909E/WGAWWBpmB275ehNhZyk87/Tpvjbp0jjNl9XwCsbe6bm6CqFsgD+A==}
+
   typed-emitter@2.1.0:
     resolution: {integrity: sha512-g/KzbYKbH5C2vPkaXGu8DJlHrGKHLsM25Zg9WuC9pMGfuvT+X25tZQWo5fK1BjBm8+UrVE9LDCvaY0CQk+fXDA==}
 
@@ -633,6 +648,8 @@ snapshots:
   '@esbuild/win32-x64@0.20.2':
     optional: true
 
+  '@mixmark-io/domino@2.2.0': {}
+
   '@sapphire/async-queue@1.5.2': {}
 
   '@sapphire/shapeshift@3.9.7':
@@ -659,6 +676,8 @@ snapshots:
   '@types/node@20.12.11':
     dependencies:
       undici-types: 5.26.5
+
+  '@types/turndown@5.0.4': {}
 
   '@types/ws@8.5.10':
     dependencies:
@@ -963,6 +982,10 @@ snapshots:
       get-tsconfig: 4.7.4
     optionalDependencies:
       fsevents: 2.3.3
+
+  turndown@7.2.0:
+    dependencies:
+      '@mixmark-io/domino': 2.2.0
 
   typed-emitter@2.1.0:
     optionalDependencies:

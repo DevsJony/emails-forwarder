@@ -17,6 +17,7 @@
   "devDependencies": {
     "@types/imapflow": "^1.0.18",
     "@types/mailparser": "^3.4.4",
+    "@types/turndown": "^5.0.4",
     "tsx": "^4.9.3",
     "typed-emitter": "^2.1.0",
     "typescript": "^5.4.5"
@@ -25,6 +26,7 @@
     "discord.js": "^14.15.2",
     "imapflow": "^1.0.162",
     "mailparser": "^3.7.1",
-    "pino": "^9.0.0"
+    "pino": "^9.0.0",
+    "turndown": "^7.2.0"
   }
 }

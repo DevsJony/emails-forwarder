@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "discord.js": "^14.15.2",
-    "imapflow": "^1.0.162",
+    "imapflow": "^1.0.164",
     "mailparser": "^3.7.1",
     "pino": "^9.0.0",
     "turndown": "^7.2.0"

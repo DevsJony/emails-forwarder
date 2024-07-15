@@ -58,9 +58,12 @@ async function run() {
                 let avatarUrl = `https://gravatar.com/avatar/${emailHash}?d=mp`;
 
                 let content = null;
+                let format = "Unknown";
                 if (mail.text) {
+                    format = "Text";
                     content = mail.text;
                 } else if (mail.html !== false) {
+                    format = "HTML";
                     // Convert HTML to Markdown as fallback
                     content = turndownService.turndown(mail.html);
                 }
@@ -70,6 +73,9 @@ async function run() {
                     .setTitle(mail.subject!)
                     .setAuthor({name: mail.from!.text, iconURL: avatarUrl})
                     .setDescription(truncateString(content ?? "*Brak treści*", 4096))
+                    .setFooter({
+                        text: `Format: ${format}`
+                    })
                     .setColor(0xf8e337);
 
                 // Attachments

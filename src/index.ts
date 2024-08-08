@@ -99,7 +99,7 @@ async function onMail(
             content = turndownService.turndown(mail.html);
         }
 
-        let arrowEmoji = state === "received" ? "⬇️" : "⬆️";
+        let arrowEmoji = state === "received" ? ":inbox_tray:" : ":outbox_tray:";
 
         // Prepare embed
         let embed = new EmbedBuilder()

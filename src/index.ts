@@ -86,7 +86,7 @@ async function onMail(
 
         // Pretty author to embed
         let prettyTo = Array.isArray(mail.to) ? mail.to.map((to) => to.text).join(", ") : mail.to!.text;
-        let arrowEmoji = state === "received" ? ":arrow_down:" : ":arrow_up:";
+        let arrowEmoji = state === "received" ? "⬇" : "⬆";
         let embedAuthor = `${arrowEmoji} ${mail.from!.text} -> ${prettyTo}`;
 
         let content = null;

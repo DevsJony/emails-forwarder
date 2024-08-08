@@ -1,32 +1,35 @@
-import {EmailListener} from "./email-listener.js";
-import {ImapFlowOptions} from "imapflow";
+import { EmailListener } from "./email-listener.js";
+import { ImapFlowOptions } from "imapflow";
 import fs from "fs";
-import {EmbedBuilder, WebhookClient} from "discord.js";
+import { EmbedBuilder, WebhookClient } from "discord.js";
 import * as crypto from "crypto";
 import TurndownService from "turndown";
+import { ParsedMail } from "mailparser";
+
+interface ImapInstance {
+    mailAccount: ImapFlowOptions;
+    webhooks: WebhookOptions[];
+}
 
 interface EnvConfig {
-    instances: Array<{
-        mailAccount: ImapFlowOptions,
-        webhooks: WebhookOptions[]
-    }>
+    instances: Array<ImapInstance>;
 }
 
 interface WebhookOptions {
-    url: string
-    threadId?: string
+    url: string;
+    threadId?: string;
 }
 
 interface WebhookInstance {
-    client: WebhookClient,
-    options: WebhookOptions
+    client: WebhookClient;
+    options: WebhookOptions;
 }
 
 function truncateString(str: string, maxLength: number) {
     if (str.length <= maxLength) {
         return str;
     }
-    return str.slice(0, maxLength  - 3) + "...";
+    return str.slice(0, maxLength - 3) + "...";
 }
 
 async function run() {
@@ -42,101 +45,123 @@ async function run() {
         const webhookInstances: WebhookInstance[] = [];
         for (let webhookOptions of instance.webhooks) {
             webhookInstances.push({
-                client: new WebhookClient({url: webhookOptions.url}),
-                options: webhookOptions
+                client: new WebhookClient({ url: webhookOptions.url }),
+                options: webhookOptions,
             });
         }
 
-        emailListener.on("onMailReceive", async (mail, mailId) => {
-            try {
-                console.log(`${instance.mailAccount.auth.user}: Processing ${mailId}`);
-                //console.log(JSON.stringify(mail));
+        emailListener.on("onMailReceived", async (mail, mailId) => {
+            await onMail("received", mail, mailId, instance, webhookInstances, turndownService);
+        });
 
-                // Avatar URL (Gravatar)
-                let lowerCaseMail = mail.from!.value[0]!.address!.trim().toLowerCase();
-                let emailHash = crypto.createHash("sha256").update(lowerCaseMail).digest("hex");
-                let avatarUrl = `https://gravatar.com/avatar/${emailHash}?d=mp`;
-
-                let content = null;
-                let format = "Unknown";
-                if (mail.text) {
-                    format = "Text";
-                    content = mail.text;
-                } else if (mail.html !== false) {
-                    format = "HTML";
-                    // Convert HTML to Markdown as fallback
-                    content = turndownService.turndown(mail.html);
-                }
-
-                // Prepare embed
-                let embed = new EmbedBuilder()
-                    .setTitle(mail.subject!)
-                    .setAuthor({name: mail.from!.text, iconURL: avatarUrl})
-                    .setDescription(truncateString(content ?? "*Brak treści*", 4096))
-                    .setFooter({
-                        text: `Format: ${format}`
-                    })
-                    .setColor(0xf8e337);
-
-                // Attachments
-                if (mail.attachments.length > 0) {
-                    let prettyAttachmentsFileNames = ""; // Example: "`test1.png`, `test2.png`, `test3.txt`"
-
-                    for (let attachment of mail.attachments) {
-                        // Is not first
-                        if (prettyAttachmentsFileNames !== "") {
-                            prettyAttachmentsFileNames += ", ";
-                        }
-
-                        prettyAttachmentsFileNames += `\`${attachment.filename}\``;
-                    }
-
-                    // Add field
-                    embed.addFields({
-                        name: "Zawiera załączniki",
-                        value: prettyAttachmentsFileNames
-                    });
-                }
-
-                for (let webhookInstance of webhookInstances) {
-                    await webhookInstance.client.send({
-                        embeds: [embed],
-                        threadId: webhookInstance.options.threadId
-                    });
-                }
-            } catch (err) {
-                console.error("Error while forwarding mail!");
-                console.error(err);
-
-                let embed = new EmbedBuilder()
-                    .setTitle("Błąd")
-                    .setDescription(`Wystąpił błąd z podaniem dalej wiadomości! Jeśli chcesz odczytać jej zawartość to musisz udać się do panelu poczty.`)
-                    .setColor(0xff0000)
-                    .setFields([
-                        {
-                            name: "Message ID",
-                            value: "`"+mail.messageId+"`"
-                        },
-                        {
-                            name: "UID",
-                            value: mailId.toString()
-                        }
-                    ]);
-
-                for (let webhookInstance of webhookInstances) {
-                    await webhookInstance.client.send({
-                        embeds: [embed],
-                        threadId: webhookInstance.options.threadId
-                    });
-                }
-            }
+        emailListener.on("onMailSent", async (mail, mailId) => {
+            await onMail("sent", mail, mailId, instance, webhookInstances, turndownService);
         });
 
         // console.log("Connecting to IMAP...");
-        await emailListener.connect();
+        await emailListener.start();
         // console.log("Connected to IMAP!")
 
         console.log(`${instance.mailAccount.auth.user}: Instance is running!`);
+    }
+}
+
+async function onMail(
+    state: "received" | "sent",
+    mail: ParsedMail,
+    mailId: number,
+    instance: ImapInstance,
+    webhookInstances: WebhookInstance[],
+    turndownService: TurndownService
+) {
+    try {
+        console.log(`${instance.mailAccount.auth.user}: Processing ${mailId}`);
+
+        //console.log(JSON.stringify(mail));
+
+        // Avatar URL (Gravatar)
+        let lowerCaseMail = mail.from!.value[0]!.address!.trim().toLowerCase();
+        let emailHash = crypto.createHash("sha256").update(lowerCaseMail).digest("hex");
+        let avatarUrl = `https://gravatar.com/avatar/${emailHash}?d=mp`;
+
+        // Pretty author to embed
+        let prettyTo = Array.isArray(mail.to) ? mail.to.map((to) => to.text).join(", ") : mail.to!.text;
+        let arrowEmoji = state === "received" ? ":arrow_down:" : ":arrow_up:";
+        let embedAuthor = `${arrowEmoji} ${mail.from!.text} -> ${prettyTo}`;
+
+        let content = null;
+        let format = "Unknown";
+        if (mail.text) {
+            format = "Text";
+            content = mail.text;
+        } else if (mail.html !== false) {
+            format = "HTML";
+            // Convert HTML to Markdown as fallback
+            content = turndownService.turndown(mail.html);
+        }
+
+        // Prepare embed
+        let embed = new EmbedBuilder()
+            .setTitle(mail.subject!)
+            .setAuthor({ name: embedAuthor, iconURL: avatarUrl })
+            .setDescription(truncateString(content ?? "*Brak treści*", 4096))
+            .setFooter({
+                text: `Format: ${format}`,
+            });
+
+        if (state === "received") {
+            embed = embed.setColor(0xf8e337);
+        } else if (state === "sent") {
+            embed = embed.setColor(0x00ff00);
+        }
+
+        // Attachments
+        if (mail.attachments.length > 0) {
+            let prettyAttachmentsFileNames = ""; // Example: "`test1.png`, `test2.png`, `test3.txt`"
+
+            for (let attachment of mail.attachments) {
+                // Is not first
+                if (prettyAttachmentsFileNames !== "") {
+                    prettyAttachmentsFileNames += ", ";
+                }
+
+                prettyAttachmentsFileNames += `\`${attachment.filename}\``;
+            }
+
+            // Add field
+            embed.addFields({
+                name: "Zawiera załączniki",
+                value: prettyAttachmentsFileNames,
+            });
+        }
+
+        for (let webhookInstance of webhookInstances) {
+            await webhookInstance.client.send({
+                embeds: [embed],
+                threadId: webhookInstance.options.threadId,
+            });
+        }
+    } catch (err) {
+        console.error("Error while forwarding mail!");
+        console.error(err);
+
+        let embed = new EmbedBuilder()
+            .setTitle("Błąd")
+            .setDescription(
+                `Wystąpił błąd z podaniem dalej wiadomości! Jeśli chcesz odczytać jej zawartość to musisz udać się do panelu poczty.`
+            )
+            .setColor(0xff0000)
+            .setFields([
+                { name: "UID", value: mailId.toString() },
+                { name: "State", value: state },
+            ]);
+
+        for (let webhookInstance of webhookInstances) {
+            await webhookInstance.client.send({
+                embeds: [embed],
+                threadId: webhookInstance.options.threadId,
+            });
+        }
     }
 }
 
@@ -157,10 +182,10 @@ function buildTurndownService(): TurndownService {
         replacement: function (content, node) {
             node = node as HTMLElement;
 
-            let alt = node.getAttribute('alt') || "image";
-            let src = node.getAttribute('src');
-            let title = node.getAttribute('title');
-            let titlePart = title ? ' "' + title + '"' : '';
+            let alt = node.getAttribute("alt") || "image";
+            let src = node.getAttribute("src");
+            let title = node.getAttribute("title");
+            let titlePart = title ? ' "' + title + '"' : "";
 
             if (src !== null) {
                 if (src.startsWith("data:")) {
@@ -171,7 +196,7 @@ function buildTurndownService(): TurndownService {
             } else {
                 return "";
             }
-        }
+        },
     });
 
     /**
@@ -179,21 +204,17 @@ function buildTurndownService(): TurndownService {
      */
     turndownService.addRule("inlineLink", {
         filter: function (node, options) {
-            return (
-                options.linkStyle === 'inlined' &&
-                node.nodeName === 'A' &&
-                node.getAttribute('href') !== null
-            )
+            return options.linkStyle === "inlined" && node.nodeName === "A" && node.getAttribute("href") !== null;
         },
         replacement: function (content, node) {
             node = node as HTMLElement;
 
-            let href = node.getAttribute('href');
-            if (href) href = href.replace(/([()])/g, '\\$1');
+            let href = node.getAttribute("href");
+            if (href) href = href.replace(/([()])/g, "\\$1");
 
             let link = href;
 
-            let title = node.getAttribute('title');
+            let title = node.getAttribute("title");
             if (title) {
                 title = ' "' + title.replace(/"/g, '\\"') + '"';
                 link += title;
@@ -204,7 +225,7 @@ function buildTurndownService(): TurndownService {
             } else {
                 return `[${content}](${link})`;
             }
-        }
+        },
     });
 
     return turndownService;

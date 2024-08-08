@@ -86,8 +86,7 @@ async function onMail(
 
         // Pretty author to embed
         let prettyTo = Array.isArray(mail.to) ? mail.to.map((to) => to.text).join(", ") : mail.to!.text;
-        let arrowEmoji = state === "received" ? "⬇️" : "⬆️";
-        let embedAuthor = `${arrowEmoji} ${mail.from!.text} -> ${prettyTo}`;
+        let embedAuthor = `${mail.from!.text} -> ${prettyTo}`;
 
         let content = null;
         let format = "Unknown";
@@ -100,9 +99,11 @@ async function onMail(
             content = turndownService.turndown(mail.html);
         }
 
+        let arrowEmoji = state === "received" ? "⬇️" : "⬆️";
+
         // Prepare embed
         let embed = new EmbedBuilder()
-            .setTitle(mail.subject!)
+            .setTitle(`${arrowEmoji} ${mail.subject}`)
             .setAuthor({ name: embedAuthor, iconURL: avatarUrl })
             .setDescription(truncateString(content ?? "*Brak treści*", 4096))
             .setFooter({

@@ -185,6 +185,7 @@ function buildTurndownService(): TurndownService {
 
             if (src !== null) {
                 if (src.startsWith("data:")) {
+                    // Strip raw base64 data from src
                     let type = src.split(",")[0]!;
                     src = `${type},...`;
                 }

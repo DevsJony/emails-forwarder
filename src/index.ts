@@ -118,15 +118,10 @@ async function onMail(
 
         // Attachments
         if (mail.attachments.length > 0) {
-            let prettyAttachmentsFileNames = ""; // Example: "`test1.png`, `test2.png`, `test3.txt`"
+            let prettyAttachmentsFileNames = "";
 
             for (let attachment of mail.attachments) {
-                // Is not first
-                if (prettyAttachmentsFileNames !== "") {
-                    prettyAttachmentsFileNames += ", ";
-                }
-
-                prettyAttachmentsFileNames += `\`${attachment.filename}\``;
+                prettyAttachmentsFileNames += `- \`${attachment.filename}\`\n`;
             }
 
             // Add field

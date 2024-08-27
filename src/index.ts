@@ -107,7 +107,7 @@ async function onMail(
             .setAuthor({ name: embedAuthor, iconURL: avatarUrl })
             .setDescription(truncateString(content ?? "*Brak treści*", 4096))
             .setFooter({
-                text: `Format: ${format}`,
+                text: `Format: ${format} | Message ID: ${mail.messageId}`,
             });
 
         if (state === "received") {

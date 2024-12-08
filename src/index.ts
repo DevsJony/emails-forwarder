@@ -225,6 +225,14 @@ function buildTurndownService(): TurndownService {
         },
     });
 
+    // Remove <style> tags
+    turndownService.addRule("removeStyleTags", {
+        filter: "style",
+        replacement: function (content, node) {
+            return "";
+        },
+    })
+
     return turndownService;
 }
 

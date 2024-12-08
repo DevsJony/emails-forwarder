@@ -1,4 +1,4 @@
-name: Build and Deploy Image
+name: Deploy
 
 on:
   push:
@@ -38,28 +38,10 @@ jobs:
           images: "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-  deploy:
-    needs: publish
-    name: Deploy Image
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Execute SSH commands
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.HOST }}
-          port: 22
-          username: ${{ secrets.USERNAME }}
-          password: ${{ secrets.PASSWORD }}
-          script: |
-            cd ${{ secrets.DOCKER_COMPOSE_DIR }}
-            docker compose pull
-            docker compose up -d
+          cache-to: type=gha

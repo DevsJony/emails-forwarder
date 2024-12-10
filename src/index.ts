@@ -71,7 +71,7 @@ async function onMail(
     mail: ParsedMail,
     mailId: number,
     instance: ImapInstance,
-    webhookInstances: WebhookInstance[],
+    webhooks: WebhookInstance[],
     turndownService: TurndownService
 ) {
     try {
@@ -131,10 +131,10 @@ async function onMail(
             });
         }
 
-        for (let webhookInstance of webhookInstances) {
-            await webhookInstance.client.send({
+        for (let webhook of webhooks) {
+            await webhook.client.send({
                 embeds: [embed],
-                threadId: webhookInstance.options.threadId,
+                threadId: webhook.options.threadId,
             });
         }
     } catch (err) {
@@ -142,9 +142,9 @@ async function onMail(
         console.error(err);
 
         let embed = new EmbedBuilder()
-            .setTitle("Błąd")
+            .setTitle("Error")
             .setDescription(
-                `Wystąpił błąd z podaniem dalej wiadomości! Jeśli chcesz odczytać jej zawartość to musisz udać się do panelu poczty.`
+                "An error occurred while forwarding the message! If you want to read its content, you have to go to the mail panel."
             )
             .setColor(0xff0000)
             .setFields([
@@ -152,7 +152,7 @@ async function onMail(
                 { name: "State", value: state },
             ]);
 
-        for (let webhookInstance of webhookInstances) {
+        for (let webhookInstance of webhooks) {
             await webhookInstance.client.send({
                 embeds: [embed],
                 threadId: webhookInstance.options.threadId,

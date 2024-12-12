@@ -32,38 +32,48 @@ function truncateString(str: string, maxLength: number) {
     return str.slice(0, maxLength - 3) + "...";
 }
 
+const TURNDOWN_SERVICE = buildTurndownService();
+
 async function run() {
     const envConfig = JSON.parse(fs.readFileSync("env-config.json", "utf-8")) as EnvConfig;
 
-    let turndownService = buildTurndownService();
-
+    // Start IMAP connections concurrently
+    let promises = [];
     for (let instance of envConfig.instances) {
-        console.log(`${instance.mailAccount.auth.user}: Preparing instance...`);
-
-        const emailListener = new EmailListener(instance.mailAccount);
-
-        const webhookInstances: WebhookInstance[] = [];
-        for (let webhookOptions of instance.webhooks) {
-            webhookInstances.push({
-                client: new WebhookClient({ url: webhookOptions.url }),
-                options: webhookOptions,
-            });
-        }
-
-        emailListener.on("onMailReceived", async (mail, mailId) => {
-            await onMail("received", mail, mailId, instance, webhookInstances, turndownService);
-        });
-
-        emailListener.on("onMailSent", async (mail, mailId) => {
-            await onMail("sent", mail, mailId, instance, webhookInstances, turndownService);
-        });
-
-        // console.log("Connecting to IMAP...");
-        await emailListener.start();
-        // console.log("Connected to IMAP!")
-
-        console.log(`${instance.mailAccount.auth.user}: Instance is running!`);
+        promises.push(
+            startImapClient(instance)
+        );
     }
+
+    await Promise.all(promises);
+}
+
+async function startImapClient(instance: ImapInstance) {
+    console.log(`${instance.mailAccount.auth.user}: Preparing instance...`);
+
+    const emailListener = new EmailListener(instance.mailAccount);
+
+    const webhookInstances: WebhookInstance[] = [];
+    for (let webhookOptions of instance.webhooks) {
+        webhookInstances.push({
+            client: new WebhookClient({ url: webhookOptions.url }),
+            options: webhookOptions,
+        });
+    }
+
+    emailListener.on("onMailReceived", async (mail, mailId) => {
+        await onMail("received", mail, mailId, instance, webhookInstances);
+    });
+
+    emailListener.on("onMailSent", async (mail, mailId) => {
+        await onMail("sent", mail, mailId, instance, webhookInstances);
+    });
+
+    // console.log("Connecting to IMAP...");
+    await emailListener.start();
+    // console.log("Connected to IMAP!")
+
+    console.log(`${instance.mailAccount.auth.user}: Instance is running!`);
 }
 
 async function onMail(
@@ -72,7 +82,6 @@ async function onMail(
     mailId: number,
     instance: ImapInstance,
     webhooks: WebhookInstance[],
-    turndownService: TurndownService
 ) {
     try {
         console.log(`${instance.mailAccount.auth.user}: Processing ${mailId}`);
@@ -96,7 +105,7 @@ async function onMail(
         } else if (mail.html !== false) {
             format = "HTML";
             // Convert HTML to Markdown as fallback
-            content = turndownService.turndown(mail.html);
+            content = TURNDOWN_SERVICE.turndown(mail.html);
         }
 
         let arrowEmoji = state === "received" ? ":inbox_tray:" : ":outbox_tray:";

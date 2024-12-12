@@ -1,2 +1,2 @@
 # Emails Forwarder
-Mały program który służy do podawania dalej maili z poczty na discorda na kanał.
+A small program that forwards emails from mailboxes to a Discord channel.

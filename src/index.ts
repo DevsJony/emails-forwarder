@@ -99,13 +99,13 @@ async function onMail(
 
         let content = null;
         let format = "Unknown";
-        if (mail.text) {
-            format = "Text";
-            content = mail.text;
-        } else if (mail.html !== false) {
+        if (mail.html !== false) {
             format = "HTML";
             // Convert HTML to Markdown as fallback
             content = TURNDOWN_SERVICE.turndown(mail.html);
+        } else if (mail.text) {
+            format = "Text";
+            content = mail.text;
         }
 
         let arrowEmoji = state === "received" ? ":inbox_tray:" : ":outbox_tray:";

@@ -229,6 +229,11 @@ function buildTurndownService(): TurndownService {
             if (content === link) {
                 return content;
             } else {
+                // Fix for links that contain brackets
+                if (content.includes("[")) {
+                    return `${content} <- [link](${link})`;
+                }
+                
                 return `[${content}](${link})`;
             }
         },

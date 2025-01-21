@@ -226,7 +226,13 @@ function buildTurndownService(): TurndownService {
                 link += title;
             }
 
+            // Remove "mailto:" from link. The link will be eventually replaced with the content
+            if (link && link.startsWith("mailto:")) {
+                link = link.replace("mailto:", "");
+            }
+
             if (content === link) {
+                // If the content is the same as the link, return the content
                 return content;
             } else {
                 // Fix for links that contain brackets

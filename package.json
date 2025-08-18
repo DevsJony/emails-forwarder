@@ -4,7 +4,7 @@
   "description": "",
   "type": "module",
   "main": "src/index.ts",
-  "packageManager": "pnpm@9.15.0",
+  "packageManager": "pnpm@9.15.9",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
@@ -15,18 +15,18 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/imapflow": "^1.0.19",
-    "@types/mailparser": "^3.4.5",
+    "@types/imapflow": "^1.0.23",
+    "@types/mailparser": "^3.4.6",
     "@types/turndown": "^5.0.5",
-    "tsx": "^4.19.2",
+    "tsx": "^4.20.4",
     "typed-emitter": "^2.1.0",
-    "typescript": "^5.7.2"
+    "typescript": "^5.9.2"
   },
   "dependencies": {
-    "discord.js": "^14.16.3",
-    "imapflow": "^1.0.171",
-    "mailparser": "^3.7.2",
-    "pino": "^9.5.0",
-    "turndown": "^7.2.0"
+    "discord.js": "^14.21.0",
+    "imapflow": "^1.0.194",
+    "mailparser": "^3.7.4",
+    "pino": "^9.9.0",
+    "turndown": "^7.2.1"
   }
 }

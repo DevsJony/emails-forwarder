@@ -49,7 +49,7 @@ async function run() {
 }
 
 async function startImapClient(instance: ImapInstance) {
-    console.log(`${instance.mailAccount.auth.user}: Preparing instance...`);
+    console.log(`${instance.mailAccount.auth!.user}: Preparing instance...`);
 
     const emailListener = new EmailListener(instance.mailAccount);
 
@@ -73,7 +73,7 @@ async function startImapClient(instance: ImapInstance) {
     await emailListener.start();
     // console.log("Connected to IMAP!")
 
-    console.log(`${instance.mailAccount.auth.user}: Instance is running!`);
+    console.log(`${instance.mailAccount.auth!.user}: Instance is running!`);
 }
 
 async function onMail(
@@ -84,7 +84,7 @@ async function onMail(
     webhooks: WebhookInstance[],
 ) {
     try {
-        console.log(`${instance.mailAccount.auth.user}: Processing ${mailId}`);
+        console.log(`${instance.mailAccount.auth!.user}: Processing ${mailId}`);
 
         //console.log(JSON.stringify(mail));
 

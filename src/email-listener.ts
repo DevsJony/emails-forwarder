@@ -159,7 +159,7 @@ class ReconnectableImapFlow {
         this.reconnecting = true;
 
         if (this.reconnectDelay > 0) {
-            console.log(`${this.imapOptions.auth.user}: Reconnect delay: ${this.reconnectDelay}`);
+            console.log(`${this.imapOptions.auth!.user}: Reconnect delay: ${this.reconnectDelay}`);
             await new Promise((resolve) => setTimeout(resolve, this.reconnectDelay));
         }
 
@@ -185,6 +185,6 @@ class ReconnectableImapFlow {
     }
 
     public log(msg: string) {
-        console.log(`[${this.imapOptions.auth.user}] ${this.options.mailbox}: ${msg}`);
+        console.log(`[${this.imapOptions.auth!.user}] ${this.options.mailbox}: ${msg}`);
     }
 }

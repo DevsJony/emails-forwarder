@@ -94,7 +94,7 @@ async function onMail(
         let avatarUrl = `https://gravatar.com/avatar/${emailHash}?d=mp`;
 
         // Pretty author to embed
-        let prettyTo = Array.isArray(mail.to) ? mail.to.map((to) => to.text).join(", ") : mail.to!.text;
+        let prettyTo: string = Array.isArray(mail.to) ? mail.to.map((to) => to.text).join(", ") : mail.to?.text ?? instance.mailAccount.auth!.user;
         let embedAuthor = `${mail.from!.text} -> ${prettyTo}`;
 
         let content = null;
@@ -108,13 +108,17 @@ async function onMail(
             content = mail.text;
         }
 
+        if (!content?.trim()) {
+            content = "*Brak treści*";
+        }
+
         let arrowEmoji = state === "received" ? ":inbox_tray:" : ":outbox_tray:";
 
         // Prepare embed
         let embed = new EmbedBuilder()
             .setTitle(`${arrowEmoji} ${mail.subject}`)
             .setAuthor({ name: embedAuthor, iconURL: avatarUrl })
-            .setDescription(truncateString(content ?? "*Brak treści*", 4096))
+            .setDescription(truncateString(content, 4096))
             .setFooter({
                 text: `Format: ${format} | Message ID: ${mail.messageId}`,
             });

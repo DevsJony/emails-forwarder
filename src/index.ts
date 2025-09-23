@@ -1,7 +1,7 @@
 import { EmailListener } from "./email-listener.js";
 import { ImapFlowOptions } from "imapflow";
 import fs from "fs";
-import { EmbedBuilder, WebhookClient } from "discord.js";
+import { AttachmentPayload, EmbedBuilder, RawFile, WebhookClient } from "discord.js";
 import * as crypto from "crypto";
 import TurndownService from "turndown";
 import { ParsedMail } from "mailparser";
@@ -129,12 +129,27 @@ async function onMail(
             embed = embed.setColor(0x00ff00);
         }
 
-        // Attachments
+        // Prepare attachments for Discord
+        const discordFiles: AttachmentPayload[] = [];
+        const DISCORD_FILE_SIZE_LIMIT = 10 * 1024 * 1024; // 10MB limit for Discord
+
         if (mail.attachments.length > 0) {
             let prettyAttachmentsFileNames = "";
 
             for (let attachment of mail.attachments) {
-                prettyAttachmentsFileNames += `- \`${attachment.filename}\`\n`;
+                const fileName = attachment.filename || 'attachment';
+                const fileSize = attachment.content.length;
+                const fileSizeMB = (fileSize / 1024 / 1024).toFixed(1);
+
+                if (fileSize > DISCORD_FILE_SIZE_LIMIT) {
+                    prettyAttachmentsFileNames += `- \`${fileName}\` (${fileSizeMB}MB) *(nie załączono - za duży plik)*\n`;
+                } else {
+                    prettyAttachmentsFileNames += `- \`${fileName}\` (${fileSizeMB}MB)\n`;
+                    discordFiles.push({
+                        attachment: attachment.content,
+                        name: fileName,
+                    });
+                }
             }
 
             // Add field
@@ -147,6 +162,7 @@ async function onMail(
         for (let webhook of webhooks) {
             await webhook.client.send({
                 embeds: [embed],
+                files: discordFiles,
                 threadId: webhook.options.threadId,
             });
         }

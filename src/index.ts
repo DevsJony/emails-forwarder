@@ -139,12 +139,12 @@ async function onMail(
             for (let attachment of mail.attachments) {
                 const fileName = attachment.filename || 'attachment';
                 const fileSize = attachment.content.length;
-                const fileSizeMB = (fileSize / 1024 / 1024).toFixed(1);
+                const fileSizeMB = (fileSize / 1024 / 1024).toFixed(2);
 
                 if (fileSize > DISCORD_FILE_SIZE_LIMIT) {
                     prettyAttachmentsFileNames += `- \`${fileName}\` (${fileSizeMB}MB) *(nie załączono - za duży plik)*\n`;
                 } else {
-                    prettyAttachmentsFileNames += `- \`${fileName}\` (${fileSizeMB}MB)\n`;
+                    //prettyAttachmentsFileNames += `- \`${fileName}\` (${fileSizeMB}MB)\n`;
                     discordFiles.push({
                         attachment: attachment.content,
                         name: fileName,
@@ -153,10 +153,12 @@ async function onMail(
             }
 
             // Add field
-            embed.addFields({
-                name: "Zawiera załączniki",
-                value: prettyAttachmentsFileNames,
-            });
+            if (prettyAttachmentsFileNames.length > 0) {
+                embed.addFields({
+                    name: "Błędne załączniki",
+                    value: prettyAttachmentsFileNames,
+                });
+            }
         }
 
         for (let webhook of webhooks) {

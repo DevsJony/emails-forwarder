@@ -134,15 +134,20 @@ async function onMail(
         const DISCORD_FILE_SIZE_LIMIT = 10 * 1024 * 1024; // 10MB limit for Discord
 
         if (mail.attachments.length > 0) {
-            let prettyAttachmentsFileNames = "";
+            let erroredAttachments = "";
 
             for (let attachment of mail.attachments) {
                 const fileName = attachment.filename || 'attachment';
                 const fileSize = attachment.content.length;
                 const fileSizeMB = (fileSize / 1024 / 1024).toFixed(2);
 
+                if (discordFiles.length >= 10) {
+                    erroredAttachments += `- \`${fileName}\` *(nie załączono - osiągnięto limit)*\n`;
+                    continue;
+                }
+
                 if (fileSize > DISCORD_FILE_SIZE_LIMIT) {
-                    prettyAttachmentsFileNames += `- \`${fileName}\` (${fileSizeMB}MB) *(nie załączono - za duży plik)*\n`;
+                    erroredAttachments += `- \`${fileName}\` (${fileSizeMB}MB) *(nie załączono - za duży plik)*\n`;
                 } else {
                     //prettyAttachmentsFileNames += `- \`${fileName}\` (${fileSizeMB}MB)\n`;
                     discordFiles.push({
@@ -153,10 +158,10 @@ async function onMail(
             }
 
             // Add field
-            if (prettyAttachmentsFileNames.length > 0) {
+            if (erroredAttachments.length > 0) {
                 embed.addFields({
                     name: "Błędne załączniki",
-                    value: prettyAttachmentsFileNames,
+                    value: truncateString(erroredAttachments, 1024),
                 });
             }
         }

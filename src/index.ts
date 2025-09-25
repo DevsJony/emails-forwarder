@@ -142,12 +142,12 @@ async function onMail(
                 const fileSizeMB = (fileSize / 1024 / 1024).toFixed(2);
 
                 if (discordFiles.length >= 10) {
-                    erroredAttachments += `- \`${fileName}\` *(nie załączono - osiągnięto limit)*\n`;
+                    erroredAttachments += `- \`${fileName}\` *(reached limit)*\n`;
                     continue;
                 }
 
                 if (fileSize > DISCORD_FILE_SIZE_LIMIT) {
-                    erroredAttachments += `- \`${fileName}\` (${fileSizeMB}MB) *(nie załączono - za duży plik)*\n`;
+                    erroredAttachments += `- \`${fileName}\` (${fileSizeMB}MB) *(too large file)*\n`;
                 } else {
                     //prettyAttachmentsFileNames += `- \`${fileName}\` (${fileSizeMB}MB)\n`;
                     discordFiles.push({

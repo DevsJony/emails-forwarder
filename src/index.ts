@@ -278,7 +278,15 @@ function buildTurndownService(): TurndownService {
         replacement: function (content, node) {
             return "";
         },
-    })
+    });
+
+    // Remove <script> tags
+    turndownService.addRule("removeScriptTags", {
+        filter: "script",
+        replacement: function (content, node) {
+            return "";
+        },
+    });
 
     return turndownService;
 }

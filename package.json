@@ -15,18 +15,18 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/imapflow": "^1.0.23",
+    "@types/imapflow": "^1.0.189",
     "@types/mailparser": "^3.4.6",
-    "@types/turndown": "^5.0.5",
-    "tsx": "^4.20.4",
+    "@types/turndown": "^5.0.6",
+    "tsx": "^4.21.0",
     "typed-emitter": "^2.1.0",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.3"
   },
   "dependencies": {
-    "discord.js": "^14.21.0",
-    "imapflow": "^1.0.194",
-    "mailparser": "^3.7.4",
-    "pino": "^9.9.0",
-    "turndown": "^7.2.1"
+    "discord.js": "^14.25.1",
+    "imapflow": "^1.2.6",
+    "mailparser": "^3.9.1",
+    "pino": "^9.14.0",
+    "turndown": "^7.2.2"
   }
 }

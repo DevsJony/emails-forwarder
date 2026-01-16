@@ -136,9 +136,11 @@ async function onMail(
         if (mail.attachments.length > 0) {
             let erroredAttachments = "";
 
+            let totalFileSize = 0;
             for (let attachment of mail.attachments) {
                 const fileName = attachment.filename || 'attachment';
                 const fileSize = attachment.content.length;
+                totalFileSize += fileSize;
                 const fileSizeMB = (fileSize / 1024 / 1024).toFixed(2);
 
                 if (discordFiles.length >= 10) {
@@ -146,7 +148,7 @@ async function onMail(
                     continue;
                 }
 
-                if (fileSize > DISCORD_FILE_SIZE_LIMIT) {
+                if (totalFileSize > DISCORD_FILE_SIZE_LIMIT) {
                     erroredAttachments += `- \`${fileName}\` (${fileSizeMB}MB) *(too large file)*\n`;
                 } else {
                     //prettyAttachmentsFileNames += `- \`${fileName}\` (${fileSizeMB}MB)\n`;

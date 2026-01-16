@@ -40,9 +40,7 @@ async function run() {
     // Start IMAP connections concurrently
     let promises = [];
     for (let instance of envConfig.instances) {
-        promises.push(
-            startImapClient(instance)
-        );
+        promises.push(startImapClient(instance));
     }
 
     await Promise.all(promises);
@@ -81,7 +79,7 @@ async function onMail(
     mail: ParsedMail,
     mailId: number,
     instance: ImapInstance,
-    webhooks: WebhookInstance[],
+    webhooks: WebhookInstance[]
 ) {
     try {
         console.log(`${instance.mailAccount.auth!.user}: Processing ${mailId}`);
@@ -94,7 +92,9 @@ async function onMail(
         let avatarUrl = `https://gravatar.com/avatar/${emailHash}?d=mp`;
 
         // Pretty author to embed
-        let prettyTo: string = Array.isArray(mail.to) ? mail.to.map((to) => to.text).join(", ") : mail.to?.text ?? instance.mailAccount.auth!.user;
+        let prettyTo: string = Array.isArray(mail.to)
+            ? mail.to.map((to) => to.text).join(", ")
+            : mail.to?.text ?? instance.mailAccount.auth!.user;
         let embedAuthor = `${mail.from!.text} -> ${prettyTo}`;
 
         let content = null;
@@ -129,43 +129,11 @@ async function onMail(
             embed = embed.setColor(0x00ff00);
         }
 
-        // Prepare attachments for Discord
-        const discordFiles: AttachmentPayload[] = [];
-        const DISCORD_FILE_SIZE_LIMIT = 10 * 1024 * 1024; // 10MB limit for Discord
+        let discordFiles: AttachmentPayload[] = [];
 
         if (mail.attachments.length > 0) {
-            let erroredAttachments = "";
-
-            let totalFileSize = 0;
-            for (let attachment of mail.attachments) {
-                const fileName = attachment.filename || 'attachment';
-                const fileSize = attachment.content.length;
-                totalFileSize += fileSize;
-                const fileSizeMB = (fileSize / 1024 / 1024).toFixed(2);
-
-                if (discordFiles.length >= 10) {
-                    erroredAttachments += `- \`${fileName}\` *(reached limit)*\n`;
-                    continue;
-                }
-
-                if (totalFileSize > DISCORD_FILE_SIZE_LIMIT) {
-                    erroredAttachments += `- \`${fileName}\` (${fileSizeMB}MB) *(too large file)*\n`;
-                } else {
-                    //prettyAttachmentsFileNames += `- \`${fileName}\` (${fileSizeMB}MB)\n`;
-                    discordFiles.push({
-                        attachment: attachment.content,
-                        name: fileName,
-                    });
-                }
-            }
-
-            // Add field
-            if (erroredAttachments.length > 0) {
-                embed.addFields({
-                    name: "Błędne załączniki",
-                    value: truncateString(erroredAttachments, 1024),
-                });
-            }
+            //discordFiles = addAttachmentsFiles(mail, embed);
+            addAttachmentsInfo(mail, embed);
         }
 
         for (let webhook of webhooks) {
@@ -268,7 +236,7 @@ function buildTurndownService(): TurndownService {
                 if (content.includes("[")) {
                     return `${content} <- [link](${link})`;
                 }
-                
+
                 return `[${content}](${link})`;
             }
         },
@@ -291,6 +259,66 @@ function buildTurndownService(): TurndownService {
     });
 
     return turndownService;
+}
+
+function addAttachmentsInfo(mail: ParsedMail, embed: EmbedBuilder) {
+    if (mail.attachments.length === 0) return;
+
+    // Attachments
+    let prettyAttachmentsFileNames = "";
+
+    for (let attachment of mail.attachments) {
+        prettyAttachmentsFileNames += `- \`${attachment.filename}\`\n`;
+    }
+
+    // Add field
+    embed.addFields({
+        name: "Zawiera załączniki",
+        value: prettyAttachmentsFileNames,
+    });
+}
+
+function addAttachmentsFiles(mail: ParsedMail, embed: EmbedBuilder): AttachmentPayload[] {
+    if (mail.attachments.length === 0) return [];
+
+    // Prepare attachments for Discord
+    const discordFiles: AttachmentPayload[] = [];
+    const DISCORD_FILE_SIZE_LIMIT = 10 * 1024 * 1024; // 10MB limit for Discord
+
+    let erroredAttachments = "";
+
+    let totalFileSize = 0;
+    for (let attachment of mail.attachments) {
+        const fileName = attachment.filename || "attachment";
+        const fileSize = attachment.content.length;
+        totalFileSize += fileSize;
+        const fileSizeMB = (fileSize / 1024 / 1024).toFixed(2);
+
+        if (discordFiles.length >= 10) {
+            erroredAttachments += `- \`${fileName}\` *(reached limit)*\n`;
+            continue;
+        }
+
+        if (totalFileSize > DISCORD_FILE_SIZE_LIMIT) {
+            erroredAttachments += `- \`${fileName}\` (${fileSizeMB}MB) *(too large file)*\n`;
+        } else {
+            //prettyAttachmentsFileNames += `- \`${fileName}\` (${fileSizeMB}MB)\n`;
+            discordFiles.push({
+                attachment: attachment.content,
+                name: fileName,
+            });
+        }
+    }
+
+    // Add field
+    if (erroredAttachments.length > 0) {
+        embed.addFields({
+            name: "Błędne załączniki",
+            value: truncateString(erroredAttachments, 1024),
+        });
+    }
+
+    return discordFiles;
 }
 
 await run();

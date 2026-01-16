@@ -1,3 +1,4 @@
 {
-    "editor.wordBasedSuggestions": "off"
+    "editor.wordBasedSuggestions": "off",
+    "editor.formatOnSave": true
 }

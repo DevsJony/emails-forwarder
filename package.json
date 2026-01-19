@@ -26,7 +26,7 @@
     "discord.js": "^14.21.0",
     "imapflow": "^1.0.194",
     "mailparser": "^3.7.4",
-    "pino": "^9.9.0",
+    "pino": "^10.2.0",
     "turndown": "^7.2.1"
   }
 }

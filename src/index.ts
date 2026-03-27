@@ -94,7 +94,7 @@ async function onMail(
         // Pretty author to embed
         let prettyTo: string = Array.isArray(mail.to)
             ? mail.to.map((to) => to.text).join(", ")
-            : mail.to?.text ?? instance.mailAccount.auth!.user;
+            : (mail.to?.text ?? instance.mailAccount.auth!.user);
         let embedAuthor = `${mail.from!.text} -> ${prettyTo}`;
 
         let content = null;
@@ -119,6 +119,7 @@ async function onMail(
             .setTitle(`${arrowEmoji} ${mail.subject}`)
             .setAuthor({ name: embedAuthor, iconURL: avatarUrl })
             .setDescription(truncateString(content, 4096))
+            .setTimestamp(mail.date ?? new Date())
             .setFooter({
                 text: `Format: ${format} | Message ID: ${mail.messageId}`,
             });
